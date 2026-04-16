@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "outDir": "dist",
+    /* 将 rootDir 改为 src，这样编译时会包含 src 下的所有子目录 */
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    /* 确保 baseUrl 指向项目根目录，以便 paths 正确解析 */
+    "baseUrl": "./",
+    "paths": {
+      "@database/*": ["src/database/*"],
+      "@shared/*": ["src/shared/*"]
+    }
+  },
+  "include": ["src/main/**/*", "src/database/**/*", "src/shared/**/*"],
+  "exclude": ["node_modules"]
+}
