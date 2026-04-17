@@ -21,8 +21,8 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install
-          # 针对 Windows 环境重新编译原生模块（如 SQLite）
-          ./node_modules/.bin/electron-rebuild
+          # 显式重建 sqlite3 模块，避免打包时报错
+          ./node_modules/.bin/electron-rebuild -f -w sqlite3
 
       - name: Build Frontend
         run: npm run build # 编译 Vue/React 代码
