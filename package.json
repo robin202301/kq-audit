@@ -75,13 +75,8 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "public/icon.icns",
-      "category": "public.app-category.business"
+    "publish": {
+      "provider": "github"
     }
   }
 }

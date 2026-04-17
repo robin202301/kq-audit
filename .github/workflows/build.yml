@@ -1,0 +1,39 @@
+name: Build Windows App
+on:
+  push:
+    tags:
+      - 'v*' # 当你推送以 v 开头的标签（如 v1.0.0）时触发打包
+
+jobs:
+  release:
+    runs-on: windows-latest # 关键：在 GitHub 提供的原生 Windows 环境中运行
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # 确保与你本地开发版本一致
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          # 针对 Windows 环境重新编译原生模块（如 SQLite）
+          ./node_modules/.bin/electron-rebuild
+
+      - name: Build Frontend
+        run: npm run build # 编译 Vue/React 代码
+
+      - name: Build Electron App
+        run: npm run dist # 执行 electron-builder 打包命令
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 自动发布的 Token
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Audit-System-Windows
+          path: dist/*.exe # 将生成的 exe 上传到 GitHub Actions 页面供下载
