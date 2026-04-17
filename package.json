@@ -57,8 +57,8 @@
     "extraResources": [
       "resources/templates/**/*"
     ],
-    "nodeGypRebuild": true,
-    "npmRebuild": true,
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
     "asar": true,
     "asarUnpack": [
       "**/*.node",
