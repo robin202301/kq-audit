@@ -47,10 +47,10 @@
     "appId": "com.kqq.auditsystem",
     "productName": "KQQ-Audit-System",
     "directories": {
-      "output": "dist"
+      "output": "release"
     },
     "files": [
-      "dist/**/*",
+      "release/**/*",
       "node_modules/**/*",
       "templates/**/*"
     ],
