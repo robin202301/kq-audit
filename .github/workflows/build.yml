@@ -3,7 +3,8 @@ on:
   push:
     tags:
       - 'v*' # 当你推送以 v 开头的标签（如 v1.0.0）时触发打包
-
+permissions:
+  contents: write
 jobs:
   release:
     runs-on: windows-latest # 关键：在 GitHub 提供的原生 Windows 环境中运行
