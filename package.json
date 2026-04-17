@@ -34,6 +34,8 @@
   "build": {
     "appId": "com.kqq.auditsystem",
     "productName": "KQQ-Audit-System",
+    "npmRebuild": false,    // 禁用自动安装重编
+    "nodeGypRebuild": false, // 禁用 gyp 自动重编
     "directories": {
       "output": "release" 
     },
