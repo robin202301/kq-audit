@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="87d4d395-4815-43a6-a26c-b9186d906090" name="更改" comment="github action" />
+    <list default="true" id="87d4d395-4815-43a6-a26c-b9186d906090" name="更改" comment="github action">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,7 +73,7 @@
       <workItem from="1776338245991" duration="4000" />
       <workItem from="1776339226256" duration="146000" />
       <workItem from="1776340506321" duration="3570000" />
-      <workItem from="1776400079687" duration="4428000" />
+      <workItem from="1776400079687" duration="5363000" />
     </task>
     <task id="LOCAL-00001" summary="github action">
       <option name="closed" value="true" />
@@ -80,7 +83,23 @@
       <option name="project" value="LOCAL" />
       <updated>1776396700860</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="github action">
+      <option name="closed" value="true" />
+      <created>1776434329706</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1776434329706</updated>
+    </task>
+    <task id="LOCAL-00003" summary="github action">
+      <option name="closed" value="true" />
+      <created>1776434606602</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1776434606602</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
