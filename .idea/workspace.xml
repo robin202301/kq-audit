@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87d4d395-4815-43a6-a26c-b9186d906090" name="更改" comment="github action">
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,6 +39,19 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="kq-audit" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="kq-audit" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -58,7 +71,8 @@
       <workItem from="1776209337586" duration="4576000" />
       <workItem from="1776338245991" duration="4000" />
       <workItem from="1776339226256" duration="146000" />
-      <workItem from="1776340506321" duration="2926000" />
+      <workItem from="1776340506321" duration="3570000" />
+      <workItem from="1776400079687" duration="3407000" />
     </task>
     <task id="LOCAL-00001" summary="github action">
       <option name="closed" value="true" />
