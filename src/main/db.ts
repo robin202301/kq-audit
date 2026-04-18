@@ -9,25 +9,33 @@ let db: sqlite3.Database | null = null
 /**
  * Initialize the SQLite database
  */
-export function initDatabase(): sqlite3.Database {
+export function initDatabase(): Promise<sqlite3.Database> {
   if (db) {
-    return db
+    return Promise.resolve(db!)
   }
 
-  const userDataPath = app.getPath('userData')
-  const dbPath = path.join(userDataPath, 'audit_persistence.db')
+  return new Promise((resolve, reject) => {
+    const userDataPath = app.getPath('userData')
+    const dbPath = path.join(userDataPath, 'audit_persistence.db')
 
-  db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-      console.error('Failed to connect to database:', err)
-      throw err
-    } else {
+    db = new sqlite3.Database(dbPath, async (err) => {
+      if (err) {
+        console.error('Failed to connect to database:', err)
+        reject(err)
+        return
+      }
+
       console.log('Connected to SQLite database at:', dbPath)
-      createTables()
-    }
-  })
 
-  return db
+      try {
+        await createTables()
+        resolve(db!)
+      } catch (error) {
+        console.error('Failed to create database tables:', error)
+        reject(error)
+      }
+    })
+  })
 }
 
 /**
@@ -56,86 +64,139 @@ export function closeDatabase(): Promise<void> {
 /**
  * Create required tables if they don't exist
  */
-function createTables() {
-  if (!db) return
+function createTables(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!db) {
+      reject(new Error('Database not connected'))
+      return
+    }
+    const database = db!
 
-  // Projects table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS projects (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT,
-      status TEXT DEFAULT 'active',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `, handleTableError('projects'))
+    database.serialize(() => {
+      let tablesCreated = 0
+      const totalTables = 3
+      let hasError = false
 
-  // Audit forms table - stores JSON data for each stage
-  db.run(`
-    CREATE TABLE IF NOT EXISTS audit_forms (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id INTEGER NOT NULL,
-      stage TEXT NOT NULL,
-      template_name TEXT, -- Added: Associated template file name
-      form_data TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
-      UNIQUE(project_id, stage)
-    )
-  `, handleTableError('audit_forms'))
+      const handleTableCreation = (tableName: string) => (err: Error | null) => {
+        if (err) {
+          console.error(`Error creating ${tableName} table:`, err)
+          hasError = true
+          reject(err)
+          return
+        }
 
-  // Audit issues table - 1:N items for Evidence/Working Papers
-  db.run(`
-    CREATE TABLE IF NOT EXISTS audit_issues (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id INTEGER NOT NULL,
-      form_id INTEGER,
-      title TEXT NOT NULL,
-      description TEXT,
-      category TEXT NOT NULL,
-      severity TEXT,
-      status TEXT DEFAULT 'open',
-      assigned_to TEXT,
-      due_date DATETIME,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
-      FOREIGN KEY (form_id) REFERENCES audit_forms (id) ON DELETE SET NULL
-    )
-  `, handleTableError('audit_issues'))
+        tablesCreated++
+        if (tablesCreated === totalTables && !hasError) {
+          // Create indexes and wait for completion
+          createIndexes()
+            .then(() => {
+              console.log('Database tables and indexes created/verified')
+              resolve()
+            })
+            .catch((error) => {
+              console.warn('Index creation had errors, but tables are ready:', error)
+              // Still resolve because tables are created successfully
+              console.log('Database tables created/verified (indexes may be incomplete)')
+              resolve()
+            })
+        }
+      }
 
-  // Create indexes for better performance
-  createIndexes()
+      // Projects table
+      database.run(`
+        CREATE TABLE IF NOT EXISTS projects (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT,
+          status TEXT DEFAULT 'active',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `, handleTableCreation('projects'))
 
-  console.log('Database tables created/verified')
+      // Audit forms table - stores JSON data for each stage
+      database.run(`
+        CREATE TABLE IF NOT EXISTS audit_forms (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL,
+          stage TEXT NOT NULL,
+          template_name TEXT, -- Added: Associated template file name
+          form_data TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+          UNIQUE(project_id, stage)
+        )
+      `, handleTableCreation('audit_forms'))
+
+      // Audit issues table - 1:N items for Evidence/Working Papers
+      database.run(`
+        CREATE TABLE IF NOT EXISTS audit_issues (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_id INTEGER NOT NULL,
+          form_id INTEGER,
+          title TEXT NOT NULL,
+          description TEXT,
+          category TEXT NOT NULL,
+          severity TEXT,
+          status TEXT DEFAULT 'open',
+          assigned_to TEXT,
+          due_date DATETIME,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
+          FOREIGN KEY (form_id) REFERENCES audit_forms (id) ON DELETE SET NULL
+        )
+      `, handleTableCreation('audit_issues'))
+    })
+  })
 }
 
 /**
  * Create indexes for better query performance
  */
-function createIndexes() {
-  if (!db) return
+function createIndexes(): Promise<void> {
+  return new Promise((resolve) => {
+    if (!db) {
+      console.warn('Database not connected, skipping index creation')
+      resolve()
+      return
+    }
+    const database = db!
 
-  // Indexes for projects table
-  db.run('CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status)', handleIndexError('idx_projects_status'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_projects_created ON projects(created_at)', handleIndexError('idx_projects_created'))
+    const totalIndexes = 11
+    let indexesCreated = 0
 
-  // Indexes for audit_forms table
-  db.run('CREATE INDEX IF NOT EXISTS idx_forms_project ON audit_forms(project_id)', handleIndexError('idx_forms_project'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_forms_stage ON audit_forms(stage)', handleIndexError('idx_forms_stage'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_forms_project_stage ON audit_forms(project_id, stage)', handleIndexError('idx_forms_project_stage'))
+    const handleIndexCreation = (indexName: string) => (err: Error | null) => {
+      if (err) {
+        console.warn(`Index ${indexName} creation failed:`, err)
+        // Continue anyway - indexes are optional
+      }
 
-  // Indexes for audit_issues table
-  db.run('CREATE INDEX IF NOT EXISTS idx_issues_project ON audit_issues(project_id)', handleIndexError('idx_issues_project'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_issues_category ON audit_issues(category)', handleIndexError('idx_issues_category'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_issues_status ON audit_issues(status)', handleIndexError('idx_issues_status'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_issues_severity ON audit_issues(severity)', handleIndexError('idx_issues_severity'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_issues_due_date ON audit_issues(due_date)', handleIndexError('idx_issues_due_date'))
-  db.run('CREATE INDEX IF NOT EXISTS idx_issues_form ON audit_issues(form_id)', handleIndexError('idx_issues_form'))
+      indexesCreated++
+      if (indexesCreated === totalIndexes) {
+        console.log('Database indexes creation completed')
+        resolve()
+      }
+    }
 
-  console.log('Database indexes created/verified')
+    // Indexes for projects table
+    database.run('CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status)', handleIndexCreation('idx_projects_status'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_projects_created ON projects(created_at)', handleIndexCreation('idx_projects_created'))
+
+    // Indexes for audit_forms table
+    database.run('CREATE INDEX IF NOT EXISTS idx_forms_project ON audit_forms(project_id)', handleIndexCreation('idx_forms_project'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_forms_stage ON audit_forms(stage)', handleIndexCreation('idx_forms_stage'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_forms_project_stage ON audit_forms(project_id, stage)', handleIndexCreation('idx_forms_project_stage'))
+
+    // Indexes for audit_issues table
+    database.run('CREATE INDEX IF NOT EXISTS idx_issues_project ON audit_issues(project_id)', handleIndexCreation('idx_issues_project'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_issues_category ON audit_issues(category)', handleIndexCreation('idx_issues_category'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_issues_status ON audit_issues(status)', handleIndexCreation('idx_issues_status'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_issues_severity ON audit_issues(severity)', handleIndexCreation('idx_issues_severity'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_issues_due_date ON audit_issues(due_date)', handleIndexCreation('idx_issues_due_date'))
+    database.run('CREATE INDEX IF NOT EXISTS idx_issues_form ON audit_issues(form_id)', handleIndexCreation('idx_issues_form'))
+  })
 }
 
 /**
@@ -225,7 +286,7 @@ export async function execute(sql: string, params: any[] = []): Promise<{ lastID
       return
     }
 
-    db.run(sql, params, function(err) {
+    db.run(sql, params, function(this: sqlite3.RunResult, err: Error | null) {
       if (err) {
         console.error('Execute error:', err, 'SQL:', sql, 'Params:', params)
         reject(err)
@@ -246,7 +307,7 @@ export async function beginTransaction(): Promise<void> {
       return
     }
 
-    db.run('BEGIN TRANSACTION', (err) => {
+    db.run('BEGIN TRANSACTION', (err: Error | null) => {
       if (err) {
         console.error('Begin transaction error:', err)
         reject(err)
@@ -267,7 +328,7 @@ export async function commitTransaction(): Promise<void> {
       return
     }
 
-    db.run('COMMIT', (err) => {
+    db.run('COMMIT', (err: Error | null) => {
       if (err) {
         console.error('Commit transaction error:', err)
         reject(err)
@@ -288,7 +349,7 @@ export async function rollbackTransaction(): Promise<void> {
       return
     }
 
-    db.run('ROLLBACK', (err) => {
+    db.run('ROLLBACK', (err: Error | null) => {
       if (err) {
         console.error('Rollback transaction error:', err)
         reject(err)

@@ -39,15 +39,19 @@ const createWindow = () => {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.whenReady().then(() => {
-  // Initialize SQLite databases
-  initDatabase() // Existing audit stages database
-  initPersistenceDb() // New persistence database
+app.whenReady().then(async () => {
+  try {
+    // Initialize SQLite databases - wait for completion
+    await initDatabase() // Existing audit stages database
+    await initPersistenceDb() // New persistence database
 
-  createWindow()
-
-  // Set up IPC handlers
-  setupIpcHandlers()
+    createWindow()
+    setupIpcHandlers()
+  } catch (error) {
+    console.error('Failed to initialize application:', error)
+    // Optionally show error dialog to user
+    app.quit()
+  }
 
   app.on('activate', () => {
     // On OS X it's common to re-create a window in the app when the
