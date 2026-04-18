@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="87d4d395-4815-43a6-a26c-b9186d906090" name="更改" comment="github action" />
+    <list default="true" id="87d4d395-4815-43a6-a26c-b9186d906090" name="更改" comment="github action">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -75,7 +79,7 @@
       <workItem from="1776338245991" duration="4000" />
       <workItem from="1776339226256" duration="146000" />
       <workItem from="1776340506321" duration="3570000" />
-      <workItem from="1776400079687" duration="7736000" />
+      <workItem from="1776400079687" duration="11524000" />
     </task>
     <task id="LOCAL-00001" summary="github action">
       <option name="closed" value="true" />
