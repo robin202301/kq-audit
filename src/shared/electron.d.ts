@@ -21,6 +21,7 @@ declare global {
 
       // Issue operations
       createIssue: (issueData: any) => Promise<any>
+      updateIssue: (id: number, updates: any) => Promise<any>
       listIssues: (projectId: number, category?: string) => Promise<any>
 
       // Word document generation operations
@@ -38,6 +39,12 @@ declare global {
         issues: Array<Record<string, any>>,
         templateName?: string
       ) => Promise<{ success: boolean; data?: Array<{ issue: any; filePath: string | null }>; error?: string }>
+
+      // Document content extraction
+      extractNoticeContent: (fileBuffer: ArrayBuffer) => Promise<{ success: boolean; data?: any; error?: string }>
+      extractDocumentContent: (fileBuffer: ArrayBuffer, stage: string) => Promise<{ success: boolean; data?: any; error?: string }>
+      extractExcelContent: (fileBuffer: ArrayBuffer) => Promise<{ success: boolean; data?: any; error?: string }>
+      generateExcelDocument: (templateName: string, data: Record<string, any>, defaultFileName?: string) => Promise<{ success: boolean; data?: { filePath: string | null }; error?: string }>
     }
   }
 }

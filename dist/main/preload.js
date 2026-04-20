@@ -26,4 +26,10 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     generateDocument: (templateName, data, defaultFileName) => electron_1.ipcRenderer.invoke('word:generate', templateName, data, defaultFileName),
     batchGenerateDocuments: (templateName, items, fileNameFn, options) => electron_1.ipcRenderer.invoke('word:batch:generate', templateName, items, fileNameFn, options),
     generateWorkingPapers: (projectData, issues, templateName) => electron_1.ipcRenderer.invoke('word:working-papers:generate', projectData, issues, templateName),
+    // Document content extraction operations
+    extractNoticeContent: (fileBuffer) => electron_1.ipcRenderer.invoke('document:extract:content', fileBuffer, 'notice'),
+    extractDocumentContent: (fileBuffer, stage) => electron_1.ipcRenderer.invoke('document:extract:content', fileBuffer, stage),
+    extractExcelContent: (fileBuffer) => electron_1.ipcRenderer.invoke('document:excel:extract', fileBuffer),
+    // Excel document generation
+    generateExcelDocument: (templateName, data, defaultFileName) => electron_1.ipcRenderer.invoke('document:excel:generate', templateName, data, defaultFileName),
 });

@@ -12,7 +12,7 @@ const writeFile = promisify(fs.writeFile)
  * Word document generation service using docxtemplater
  */
 export class WordService {
-  private templatesDir: string
+  protected templatesDir: string
 
   constructor() {
     // Determine templates directory based on environment

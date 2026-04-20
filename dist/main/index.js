@@ -8,6 +8,7 @@ const path_1 = __importDefault(require("path"));
 const index_1 = require("../database/index");
 const db_1 = require("./db");
 const wordService_1 = require("./wordService");
+const documentService_1 = require("./documentService");
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
     electron_1.app.quit();
@@ -282,6 +283,52 @@ function setupIpcHandlers() {
         }
         catch (error) {
             console.error('Working papers generation error:', error);
+            return { success: false, error: error.message };
+        }
+    });
+    // Document content extraction operations
+    electron_1.ipcMain.handle('document:extract:content', async (event, fileBuffer, stage) => {
+        try {
+            // Determine file type based on stage or analyze buffer
+            // For now, use simple detection - implement better detection in production
+            const fileType = stage === 'survey' ? 'xlsx' : 'docx';
+            const result = await documentService_1.documentService.extractContent(fileBuffer, stage, fileType);
+            return { success: true, data: result };
+        }
+        catch (error) {
+            console.error('Document content extraction error:', error);
+            return { success: false, error: error.message };
+        }
+    });
+    electron_1.ipcMain.handle('document:excel:extract', async (event, fileBuffer) => {
+        try {
+            // Save buffer to temp file for processing
+            const fs = require('fs');
+            const os = require('os');
+            const path = require('path');
+            const tempDir = path.join(os.tmpdir(), 'kq-audit');
+            if (!fs.existsSync(tempDir)) {
+                fs.mkdirSync(tempDir, { recursive: true });
+            }
+            const tempFilePath = path.join(tempDir, `temp_excel_${Date.now()}.xlsx`);
+            await fs.promises.writeFile(tempFilePath, Buffer.from(fileBuffer));
+            const result = await documentService_1.documentService.extractExcelContent(tempFilePath);
+            // Clean up temp file
+            fs.unlinkSync(tempFilePath);
+            return { success: true, data: result };
+        }
+        catch (error) {
+            console.error('Excel content extraction error:', error);
+            return { success: false, error: error.message };
+        }
+    });
+    electron_1.ipcMain.handle('document:excel:generate', async (event, templateName, data, defaultFileName) => {
+        try {
+            const filePath = await documentService_1.documentService.generateExcelDocument(templateName, data, defaultFileName);
+            return { success: true, data: { filePath } };
+        }
+        catch (error) {
+            console.error('Excel document generation error:', error);
             return { success: false, error: error.message };
         }
     });

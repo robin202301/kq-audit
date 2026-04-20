@@ -188,6 +188,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { AuditStage } from '@shared/types'
 import AuditNotice from './views/AuditNotice.vue'
+import AuditSurvey from './views/AuditSurvey.vue'
+import AuditPlan from './views/AuditPlan.vue'
+import AuditEvidence from './views/AuditEvidence.vue'
+import AuditWorkingPaper from './views/AuditWorkingPaper.vue'
+import AuditFinalReport from './views/AuditFinalReport.vue'
 
 // Mock data for now - replace with actual API calls
 const auditStages = ref<AuditStage[]>([
@@ -205,7 +210,11 @@ const currentProjectId = ref<number | null>(1) // TODO: Get from project selecti
 // Stage component mapping
 const stageComponents: Record<string, any> = {
   'Notice': AuditNotice,
-  // Add other stage components as they are created
+  'Survey': AuditSurvey,
+  'Plan': AuditPlan,
+  'Evidence': AuditEvidence,
+  'Working Paper': AuditWorkingPaper,
+  'Final Report': AuditFinalReport
 }
 
 function selectStage(stage: AuditStage) {

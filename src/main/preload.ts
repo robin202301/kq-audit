@@ -66,4 +66,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     templateName?: string
   ) =>
     ipcRenderer.invoke('word:working-papers:generate', projectData, issues, templateName),
+
+  // Document content extraction operations
+  extractNoticeContent: (fileBuffer: ArrayBuffer) =>
+    ipcRenderer.invoke('document:extract:content', fileBuffer, 'notice'),
+
+  extractDocumentContent: (fileBuffer: ArrayBuffer, stage: string) =>
+    ipcRenderer.invoke('document:extract:content', fileBuffer, stage),
+
+  extractExcelContent: (fileBuffer: ArrayBuffer) =>
+    ipcRenderer.invoke('document:excel:extract', fileBuffer),
+
+  // Excel document generation
+  generateExcelDocument: (templateName: string, data: Record<string, any>, defaultFileName?: string) =>
+    ipcRenderer.invoke('document:excel:generate', templateName, data, defaultFileName),
 })

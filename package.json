@@ -13,21 +13,22 @@
     "build:renderer": "vite build",
     "preview": "vite preview",
     "start": "npm run electron:dev",
-    "electron:dev": "concurrently -k \"npm run dev\" \"tsc -p tsconfig.main.json -w\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
+    "electron:dev": "concurrently -k \"npm run dev\" \"tsc -p tsconfig.main.json -w\" \"tsc-alias -p tsconfig.main.json -w\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
     "electron:build": "npm run build && electron-builder",
     "dist": "npm run build && electron-builder"
   },
   "dependencies": {
     "autoprefixer": "^10.4.0",
-    "electron-squirrel-startup": "^1.0.0",
     "docxtemplater": "^3.42.0",
+    "electron-squirrel-startup": "^1.0.0",
     "jszip-utils": "^0.1.0",
     "pinia": "^2.1.0",
     "pizzip": "^3.1.0",
     "postcss": "^8.4.0",
     "sqlite3": "^5.1.7",
     "tailwindcss": "^3.4.0",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.0.0",

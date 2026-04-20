@@ -1,5 +1,6 @@
 # AuditSystem-Win (Windows Standalone)
-
+# lang 
+- **项目所有页面使用中文** 
 ## Project Overview
 Desktop application for audit workflow management, designed to run offline on a single Windows machine. Implements a 6-stage audit workflow with SQLite data persistence and Word template filling capabilities.
 
@@ -135,18 +136,25 @@ if (result.success) {
 ## Word Document Generation API
 
 The Word document generation service is implemented in `src/main/wordService.ts` using docxtemplater and PizZip libraries.
-
+注意这部分功能要求如下：
+所有页面支持上传和导出对应格式文件，上传后可进行编辑，变保持版式不变的情况下导出
 ### Template Requirements
 - Templates must be placed in `resources/templates/` directory
 - Use curly braces `{}` for placeholders (e.g., `{project_name}`, `{audit_date}`)
 - Required templates for each audit stage:
-  - `notice_template.docx` - Notice stage
-  - `survey_template.docx` - Survey stage
-  - `plan_template.docx` - Plan stage
-  - `evidence_template.docx` - Evidence stage
+  - `notice.docx` - Notice stage,这个名称依据上传的文件内容来确定，这个页面包含以下输入框，内容首先引用上传文件对应内容，相关输入框内容都应存放进本地数据库，以便后续页面引用
+  - 通知书标题（关于xxx审计的通知）
+  - 通知内容
+  - 附件文件名
+  - 日期
+  - 抄送 
+  - （印发机关） 印发日期（****年**月**日印发）
+  - `resources/templates/tpl_investigation_record_auditee_basic_info.xlsx` - Survey stage 按照模版生成输入框，内容支持通过上传文件来填入
+  - `resources/templates/tpl_audit_plan.doc` - Plan stage
+  - `resources/templates/tpl_audit_evidence.docx` - Evidence stage
   - `working_paper_template.docx` - Working Paper stage
   - `final_report_template.docx` - Final Report stage
-
+-上述所有页面支持文件上传和导出，根据不同段落或者表格生成对应的输入框，导出word/excel时，必须遵照模版或者上传文件的版式
 ### IPC Handlers
 Available via `window.electronAPI` in the renderer process:
 
