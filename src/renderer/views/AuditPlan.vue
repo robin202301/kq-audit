@@ -198,7 +198,6 @@
         <span class="text-red-700 text-sm">{{ errorMessage }}</span>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -209,10 +208,10 @@ import { useProjectStore } from "../stores/project"
 import { ref, onMounted, watch } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
 import type { PlanFormData } from '../../shared/types'
+const projectStore = useProjectStore()
 
 const props = defineProps<{
 // 项目存储 - 用于跨页面数据共享
-const projectStore = useProjectStore()
   projectId?: number
 }>()
 
