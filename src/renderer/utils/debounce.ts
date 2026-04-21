@@ -35,17 +35,27 @@ export function debounceAsync<T extends (...args: any[]) => Promise<any>>(
   wait: number
 ): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   let timeout: ReturnType<typeof setTimeout> | null = null
-  let pendingResolve: ((value: ReturnType<T>) => void) | null = null
+  let currentResolve: ((value: ReturnType<T>) => void) | null = null
 
   return function (this: any, ...args: Parameters<T>): Promise<ReturnType<T>> {
     return new Promise((resolve) => {
-      if (timeout) clearTimeout(timeout)
+      if (timeout) {
+        clearTimeout(timeout)
+        if (currentResolve) {
+          currentResolve(null as any) // 取消之前的Promise
+        }
+      }
 
       timeout = setTimeout(async () => {
-        const result = await func.apply(this, args)
-        if (pendingResolve) pendingResolve(result)
-        resolve(result)
+        try {
+          const result = await func.apply(this, args)
+          resolve(result)
+        } catch (error) {
+          resolve(Promise.reject(error))
+        }
       }, wait)
+
+      currentResolve = resolve
     })
   }
 }

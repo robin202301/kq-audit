@@ -454,7 +454,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
 import { useProjectStore } from '../stores/project'
 import type { EvidenceFormData, AuditIssue } from '../../shared/types'

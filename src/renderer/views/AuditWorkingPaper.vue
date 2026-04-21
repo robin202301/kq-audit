@@ -202,9 +202,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue"
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
+import { useProjectStore } from '../stores/project'
 import type { WorkingPaperFormData } from '../../shared/types'
 
 const props = defineProps<{
@@ -235,6 +235,7 @@ const extracting = ref(false)
 const uploadedFile = ref<File | null>(null)
 const lastSaved = ref<string | null>(null)
 const errorMessage = ref('')
+const showAutoFillHint = ref(false) // 显示自动填充提示
 
 // 自动保存定时器
 let autoSaveTimer: NodeJS.Timeout | null = null
