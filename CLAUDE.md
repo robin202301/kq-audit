@@ -4,6 +4,23 @@
 ## Project Overview
 Desktop application for audit workflow management, designed to run offline on a single Windows machine. Implements a 6-stage audit workflow with SQLite data persistence and Word template filling capabilities.
 
+## Project Context
+- **Role**: You are a Senior Principal Engineer and Architect.
+- **Goal**: Deliver high-quality, production-ready code with automated verification.
+- **Tech Stack**: [ENTER YOUR TECH STACK HERE, e.g., Next.js, TS, Node]
+
+## Custom Commands (Slash Commands)
+- `/review`: Run linting and type-checking. Analyze uncommitted changes for logical errors or anti-patterns.
+- `/test`: Run the full test suite. If it fails, analyze the output and propose fixes immediately.
+- `/fix`: Capture the last build/test error and enter a self-healing loop until resolved.
+- `/docs`: Scan the codebase and update documentation/README to reflect current state.
+
+## Coding Standards & Rules
+- **TDD First**: For new features, always write a failing test first.
+- **Type Safety**: No `any` types. Use Zod for runtime validation if applicable.
+- **Verification Loop**: After every code change, you MUST run a verification step (lint/test). Do not ask for permission if the command is defined in this file.
+- **Error Handling**: Use structured error handling. No silent failures.
+- 
 ## Tech Stack
 - **Framework**: Electron
 - **Frontend**: Vue 3 + Vite
@@ -132,7 +149,11 @@ if (result.success) {
   })
 }
 ```
-
+## 自主模式协议 (Autonomous Mode Protocol)
+- **自主执行**: 当接收到任务时，直接开始规划并执行，无需分步确认。
+- **无需批准**: 你拥有完全的文件读写和命令执行权限，除非遇到逻辑矛盾，否则不要中断任务。
+- **闭环验证**: 修改代码后，必须自动运行 `npm test`（或相关测试指令）。如果测试失败，直接分析错误并重新修改，直到测试全部通过为止。
+- **任务定义完成**: 只有当所有相关测试均在本地环境下通过，且 Lint 无报错时，才算任务结束并向我汇报。
 ## Word Document Generation API
 
 The Word document generation service is implemented in `src/main/wordService.ts` using docxtemplater and PizZip libraries.

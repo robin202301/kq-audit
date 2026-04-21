@@ -221,7 +221,6 @@
         <span class="text-red-700 text-sm">{{ errorMessage }}</span>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
