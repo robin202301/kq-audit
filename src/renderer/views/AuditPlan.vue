@@ -7,9 +7,9 @@
       </div>
       <div class="flex space-x-3">
         <button
-          @click="exportToWord"
-          :disabled="!formData.auditObjectives || generatingWord"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            @click="exportToWord"
+            :disabled="!formData.auditObjectives || generatingWord"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           <span v-if="generatingWord">
             <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -18,9 +18,9 @@
           <span v-else>导出Word文档</span>
         </button>
         <button
-          @click="saveFormData"
-          :disabled="saving"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            @click="saveFormData"
+            :disabled="saving"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           <span v-if="saving">
             <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -34,14 +34,14 @@
     <!-- 文件上传区域 -->
     <div class="mb-8">
       <FileUpload
-        label="上传审计计划Word文档"
-        :accept="['.docx', '.doc']"
-        :max-size="10"
-        :show-extract-button="true"
-        :extracting="extracting"
-        @file-selected="handleFileSelected"
-        @extract-content="extractFileContent"
-        @file-removed="handleFileRemoved"
+          label="上传审计计划Word文档"
+          :accept="['.docx', '.doc']"
+          :max-size="10"
+          :show-extract-button="true"
+          :extracting="extracting"
+          @file-selected="handleFileSelected"
+          @extract-content="extractFileContent"
+          @file-removed="handleFileRemoved"
       />
     </div>
 
@@ -55,24 +55,24 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">审计目标</label>
             <textarea
-              v-model="formData.auditObjectives"
-              rows="4"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入审计目标"
-              @blur="autoSave"
+                v-model="formData.auditObjectives"
+                rows="4"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入审计目标"
+                @blur="autoSave"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">审计范围</label>
             <textarea
-              v-model="formData.auditScope"
-              rows="4"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入审计范围"
-              @blur="autoSave"
+                v-model="formData.auditScope"
+                rows="4"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入审计范围"
+                @blur="autoSave"
             />
-          </div>
+            <!-- 修复：提示信息放在正确位置 -->
             <div v-if="showAutoFillHint && formData.auditScope" class="mt-1 text-xs text-green-600">
               <svg class="inline-block w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -80,25 +80,26 @@
               已从通知阶段自动填充
             </div>
           </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">审计方法</label>
             <textarea
-              v-model="formData.auditMethodology"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入审计方法"
-              @blur="autoSave"
+                v-model="formData.auditMethodology"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入审计方法"
+                @blur="autoSave"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">时间安排</label>
             <textarea
-              v-model="formData.auditTimeline"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入时间安排"
-              @blur="autoSave"
+                v-model="formData.auditTimeline"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入时间安排"
+                @blur="autoSave"
             />
           </div>
         </div>
@@ -112,33 +113,33 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">资源分配</label>
             <textarea
-              v-model="formData.resourceAllocation"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入资源分配"
-              @blur="autoSave"
+                v-model="formData.resourceAllocation"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入资源分配"
+                @blur="autoSave"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">风险评估</label>
             <textarea
-              v-model="formData.riskAssessment"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入风险评估"
-              @blur="autoSave"
+                v-model="formData.riskAssessment"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入风险评估"
+                @blur="autoSave"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">审计组成员</label>
             <textarea
-              v-model="formData.auditTeamMembers"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入审计组成员"
-              @blur="autoSave"
+                v-model="formData.auditTeamMembers"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入审计组成员"
+                @blur="autoSave"
             />
           </div>
 
@@ -146,21 +147,21 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">审计组长</label>
               <input
-                v-model="formData.teamLeader"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入审计组长"
-                @blur="autoSave"
+                  v-model="formData.teamLeader"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="请输入审计组长"
+                  @blur="autoSave"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">技术专家</label>
               <input
-                v-model="formData.technicalExpert"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入技术专家"
-                @blur="autoSave"
+                  v-model="formData.technicalExpert"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="请输入技术专家"
+                  @blur="autoSave"
               />
             </div>
           </div>
@@ -168,11 +169,11 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">质量复核人</label>
             <input
-              v-model="formData.qualityReviewer"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="请输入质量复核人"
-              @blur="autoSave"
+                v-model="formData.qualityReviewer"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="请输入质量复核人"
+                @blur="autoSave"
             />
           </div>
         </div>
@@ -198,20 +199,19 @@
         <span class="text-red-700 text-sm">{{ errorMessage }}</span>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue"
-import FileUpload from "../components/FileUpload.vue"
-import type { PlanFormData } from "../../shared/types"
-import { useProjectStore } from "../stores/project"
 import { ref, onMounted, watch } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
 import type { PlanFormData } from '../../shared/types'
+import { useProjectStore } from '../stores/project'
+
 const projectStore = useProjectStore()
 
+// 修复：defineProps 只保留类型，无注释/代码
 const props = defineProps<{
-// 项目存储 - 用于跨页面数据共享
   projectId?: number
 }>()
 
@@ -236,7 +236,7 @@ const extracting = ref(false)
 const uploadedFile = ref<File | null>(null)
 const lastSaved = ref<string | null>(null)
 const errorMessage = ref('')
-const showAutoFillHint = ref(false) // 显示自动填充提示
+const showAutoFillHint = ref(false)
 
 // 自动保存定时器
 let autoSaveTimer: NodeJS.Timeout | null = null
@@ -251,7 +251,7 @@ const autoSave = () => {
     if (props.projectId) {
       saveFormData()
     }
-  }, 2000) // 2秒后自动保存
+  }, 2000)
 }
 
 // 保存表单数据到数据库
@@ -311,18 +311,11 @@ const extractFileContent = async () => {
   extracting.value = true
 
   try {
-    // 读取文件为ArrayBuffer
     const arrayBuffer = await uploadedFile.value.arrayBuffer()
-
-    // 调用IPC提取Word内容
     const result = await window.electronAPI.extractDocumentContent(arrayBuffer, 'plan')
 
     if (result.success) {
       console.log('Word内容提取成功:', result.data)
-
-      // TODO: 根据Word模板结构解析数据并填充表单
-      // 这里应该根据tpl_audit_plan.doc的结构提取字段并更新formData
-
       errorMessage.value = '内容提取成功，请手动填写相关字段'
       setTimeout(() => { errorMessage.value = '' }, 3000)
     } else {
@@ -355,9 +348,9 @@ const exportToWord = async () => {
 
   try {
     const result = await window.electronAPI.generateDocument(
-      'tpl_audit_plan.doc',
-      formData.value,
-      `审计计划_${new Date().toISOString().slice(0, 10)}.docx`
+        'tpl_audit_plan.doc',
+        formData.value,
+        `审计计划_${new Date().toISOString().slice(0, 10)}.docx`
     )
 
     if (result.success && result.data?.filePath) {
@@ -381,17 +374,14 @@ const loadFormData = async () => {
   if (!props.projectId) return
 
   try {
-    // 1. 先加载通知数据到项目存储中
     await projectStore.loadNoticeData(props.projectId)
 
-    // 2. 检查是否有项目名称可以自动填充审计范围
     if (projectStore.extractedProjectName && !formData.value.auditScope) {
       formData.value.auditScope = projectStore.extractedProjectName
       showAutoFillHint.value = true
       console.log("从通知数据中自动填充审计范围:", projectStore.extractedProjectName)
     }
 
-    // 3. 加载计划阶段已保存的数据
     const result = await window.electronAPI.getForm(props.projectId, "plan")
 
     if (result.success && result.data) {
@@ -404,17 +394,14 @@ const loadFormData = async () => {
   }
 }
 
-// 监听项目存储中的通知数据变化，自动填充审计范围
 watch(() => projectStore.extractedProjectName, (projectName) => {
   if (projectName && !formData.value.auditScope) {
-    // 自动填充审计范围
     formData.value.auditScope = projectName
     showAutoFillHint.value = true
     console.log("从通知数据中自动填充审计范围:", projectName)
   }
 })
 
-// 监听用户编辑审计范围，隐藏自动填充提示
 watch(() => formData.value.auditScope, (newValue, oldValue) => {
   if (showAutoFillHint.value && oldValue && newValue !== oldValue) {
     showAutoFillHint.value = false
@@ -422,14 +409,12 @@ watch(() => formData.value.auditScope, (newValue, oldValue) => {
   }
 })
 
-// 监听projectId变化
 watch(() => props.projectId, (newProjectId) => {
   if (newProjectId) {
     loadFormData()
   }
 })
 
-// 组件挂载时加载数据
 onMounted(() => {
   if (props.projectId) {
     loadFormData()
