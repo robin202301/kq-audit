@@ -73,7 +73,13 @@
               @blur="autoSave"
             />
           </div>
-
+            <div v-if="showAutoFillHint && formData.auditScope" class="mt-1 text-xs text-green-600">
+              <svg class="inline-block w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              已从通知阶段自动填充
+            </div>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">审计方法</label>
             <textarea
@@ -196,11 +202,17 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch, computed } from "vue"
+import FileUpload from "../components/FileUpload.vue"
+import type { PlanFormData } from "../../shared/types"
+import { useProjectStore } from "../stores/project"
 import { ref, onMounted, watch } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
 import type { PlanFormData } from '../../shared/types'
 
 const props = defineProps<{
+// 项目存储 - 用于跨页面数据共享
+const projectStore = useProjectStore()
   projectId?: number
 }>()
 
@@ -225,6 +237,7 @@ const extracting = ref(false)
 const uploadedFile = ref<File | null>(null)
 const lastSaved = ref<string | null>(null)
 const errorMessage = ref('')
+const showAutoFillHint = ref(false) // 显示自动填充提示
 
 // 自动保存定时器
 let autoSaveTimer: NodeJS.Timeout | null = null
@@ -369,17 +382,46 @@ const loadFormData = async () => {
   if (!props.projectId) return
 
   try {
-    const result = await window.electronAPI.getForm(props.projectId, 'plan')
+    // 1. 先加载通知数据到项目存储中
+    await projectStore.loadNoticeData(props.projectId)
+
+    // 2. 检查是否有项目名称可以自动填充审计范围
+    if (projectStore.extractedProjectName && !formData.value.auditScope) {
+      formData.value.auditScope = projectStore.extractedProjectName
+      showAutoFillHint.value = true
+      console.log("从通知数据中自动填充审计范围:", projectStore.extractedProjectName)
+    }
+
+    // 3. 加载计划阶段已保存的数据
+    const result = await window.electronAPI.getForm(props.projectId, "plan")
 
     if (result.success && result.data) {
       const savedData = JSON.parse(result.data.form_data)
       formData.value = { ...formData.value, ...savedData }
-      console.log('表单数据已加载')
+      console.log("表单数据已加载")
     }
   } catch (error) {
-    console.error('加载表单数据失败:', error)
+    console.error("加载表单数据失败:", error)
   }
 }
+
+// 监听项目存储中的通知数据变化，自动填充审计范围
+watch(() => projectStore.extractedProjectName, (projectName) => {
+  if (projectName && !formData.value.auditScope) {
+    // 自动填充审计范围
+    formData.value.auditScope = projectName
+    showAutoFillHint.value = true
+    console.log("从通知数据中自动填充审计范围:", projectName)
+  }
+})
+
+// 监听用户编辑审计范围，隐藏自动填充提示
+watch(() => formData.value.auditScope, (newValue, oldValue) => {
+  if (showAutoFillHint.value && oldValue && newValue !== oldValue) {
+    showAutoFillHint.value = false
+    console.log("用户手动编辑了审计范围，隐藏自动填充提示")
+  }
+})
 
 // 监听projectId变化
 watch(() => props.projectId, (newProjectId) => {

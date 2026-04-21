@@ -62,7 +62,13 @@
               @blur="autoSave"
             />
           </div>
-
+            <div v-if="showAutoFillHint && formData.paperTitle" class="mt-1 text-xs text-green-600">
+              <svg class="inline-block w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              已从通知阶段自动填充
+            </div>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">审计程序</label>
             <textarea
@@ -196,6 +202,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch, computed } from "vue"
 import { ref, onMounted, watch } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
 import type { WorkingPaperFormData } from '../../shared/types'
@@ -203,6 +210,9 @@ import type { WorkingPaperFormData } from '../../shared/types'
 const props = defineProps<{
   projectId?: number
 }>()
+
+// 项目存储 - 用于跨页面数据共享
+const projectStore = useProjectStore()
 
 // 表单数据
 const formData = ref<WorkingPaperFormData>({
@@ -369,17 +379,46 @@ const loadFormData = async () => {
   if (!props.projectId) return
 
   try {
-    const result = await window.electronAPI.getForm(props.projectId, 'working_paper')
+    // 1. 先加载通知数据到项目存储中
+    await projectStore.loadNoticeData(props.projectId)
+
+    // 2. 检查是否有项目名称可以自动填充工作底稿标题
+    if (projectStore.extractedProjectName && !formData.value.paperTitle) {
+      formData.value.paperTitle = projectStore.extractedProjectName + " 工作底稿"
+      showAutoFillHint.value = true
+      console.log("从通知数据中自动填充工作底稿标题:", projectStore.extractedProjectName)
+    }
+
+    // 3. 加载工作底稿阶段已保存的数据
+    const result = await window.electronAPI.getForm(props.projectId, "working_paper")
 
     if (result.success && result.data) {
       const savedData = JSON.parse(result.data.form_data)
       formData.value = { ...formData.value, ...savedData }
-      console.log('表单数据已加载')
+      console.log("表单数据已加载")
     }
   } catch (error) {
-    console.error('加载表单数据失败:', error)
+    console.error("加载表单数据失败:", error)
   }
 }
+
+// 监听项目存储中的通知数据变化，自动填充工作底稿标题
+watch(() => projectStore.extractedProjectName, (projectName) => {
+  if (projectName && !formData.value.paperTitle) {
+    // 自动填充工作底稿标题
+    formData.value.paperTitle = projectName + " 工作底稿"
+    showAutoFillHint.value = true
+    console.log("从通知数据中自动填充工作底稿标题:", projectName)
+  }
+})
+
+// 监听用户编辑工作底稿标题，隐藏自动填充提示
+watch(() => formData.value.paperTitle, (newValue, oldValue) => {
+  if (showAutoFillHint.value && oldValue && newValue !== oldValue) {
+    showAutoFillHint.value = false
+    console.log("用户手动编辑了工作底稿标题，隐藏自动填充提示")
+  }
+})
 
 // 监听projectId变化
 watch(() => props.projectId, (newProjectId) => {

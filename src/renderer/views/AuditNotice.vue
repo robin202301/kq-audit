@@ -303,12 +303,16 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { debounce } from '../utils/debounce'
+import { useProjectStore } from '../stores/project'
 import type { AuditForm, NoticeFormData } from '@shared/types'
 
 // Props
 const props = defineProps<{
   projectId?: number
 }>()
+
+// 项目存储（用于跨页面数据共享）
+const projectStore = useProjectStore()
 
 // 反应式表单数据
 const formData = ref<NoticeFormData>({
@@ -359,6 +363,12 @@ onMounted(async () => {
         }
 
         lastSaved.value = new Date(result.data.updated_at || result.data.created_at || Date.now())
+
+        // 更新项目存储中的通知数据
+        projectStore.setNoticeData(formData.value)
+
+        // 设置当前项目ID
+        projectStore.setCurrentProjectId(props.projectId!)
       }
     } catch (error) {
       console.error('加载表单数据失败:', error)
@@ -403,6 +413,14 @@ const saveForm = debounce(async () => {
     if (result.success) {
       lastSaved.value = new Date()
       saveError.value = null
+
+      // 更新项目存储中的通知数据
+      projectStore.setNoticeData(formData.value)
+
+      // 设置当前项目ID（如果存在）
+      if (props.projectId) {
+        projectStore.setCurrentProjectId(props.projectId)
+      }
     } else {
       saveError.value = result.error || '保存表单失败'
     }

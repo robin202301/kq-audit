@@ -7,7 +7,7 @@
         <p class="text-gray-600 mt-1">证据收集与管理 - 问题管理与文档生成</p>
       </div>
       <div class="flex items-center space-x-3">
-        <!-- Save status indicator -->
+        <!-- 保存状态指示器 -->
         <div class="flex items-center text-sm" :class="saveStatusClass">
           <span class="mr-2">{{ saveStatusText }}</span>
           <div class="w-2 h-2 rounded-full animate-pulse" :class="saveStatusDotClass"></div>
@@ -45,6 +45,12 @@
               placeholder="请输入证据标题"
               @blur="saveEvidenceFormData"
             />
+            <div v-if="showAutoFillHint && evidenceFormData.evidenceTitle" class="mt-1 text-xs text-green-600">
+              <svg class="inline-block w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              已从通知阶段自动填充
+            </div>
           </div>
 
           <div>
@@ -142,6 +148,23 @@
                 <option value="critical">关键</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">相关审计事项</label>
+            <select
+              v-model="evidenceFormData.relatedAuditItem"
+              @change="saveEvidenceFormData"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">请选择相关审计事项</option>
+              <option v-for="(item, index) in projectStore.allAuditItems" :key="index" :value="item">
+                {{ item }}
+              </option>
+            </select>
+            <p class="mt-1 text-sm text-gray-500" v-if="projectStore.allAuditItems.length === 0">
+              通知单中尚未提取审计事项，请在通知单页面先保存通知数据
+            </p>
           </div>
 
           <div>
@@ -433,6 +456,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import FileUpload from '../components/FileUpload.vue'
+import { useProjectStore } from '../stores/project'
 import type { EvidenceFormData, AuditIssue } from '../../shared/types'
 import { debounce } from '../utils/debounce'
 
@@ -440,6 +464,9 @@ import { debounce } from '../utils/debounce'
 const props = defineProps<{
   projectId?: number
 }>()
+
+// 项目存储（用于访问通知单数据和审计事项）
+const projectStore = useProjectStore()
 
 // Local type for issue with UI state
 interface IssueWithState extends Omit<AuditIssue, 'id' | 'created_at' | 'updated_at'> {
@@ -460,6 +487,7 @@ const evidenceFormData = ref<EvidenceFormData>({
   collectionMethod: '',
   evidenceDescription: '',
   relatedFinding: '',
+  relatedAuditItem: '',
   relatedRequirement: '',
   importanceLevel: '',
 })
@@ -473,6 +501,7 @@ const generatingWord = ref(false)
 const extracting = ref(false)
 const generationResults = ref<Array<{ issue: any; filePath: string | null }>>([])
 const evidenceFile = ref<File | null>(null)
+const showAutoFillHint = ref(false) // 显示自动填充提示
 
 // 自动保存定时器
 let evidenceAutoSaveTimer: NodeJS.Timeout | null = null
@@ -625,6 +654,23 @@ const loadEvidenceFormData = async () => {
   if (!props.projectId) return
 
   try {
+    // 1. 先加载通知数据到项目存储中
+    await projectStore.loadNoticeData(props.projectId)
+
+    // 2. 自动填充证据标题（基于项目名称）
+    if (projectStore.extractedProjectName && !evidenceFormData.value.evidenceTitle) {
+      evidenceFormData.value.evidenceTitle = `${projectStore.extractedProjectName}审计证据`
+      showAutoFillHint.value = true
+      console.log('从通知数据中自动填充证据标题:', evidenceFormData.value.evidenceTitle)
+    }
+
+    // 3. 自动选择第一个审计事项（如果有）
+    if (projectStore.allAuditItems.length > 0 && !evidenceFormData.value.relatedAuditItem) {
+      evidenceFormData.value.relatedAuditItem = projectStore.allAuditItems[0]
+      console.log('自动选择第一个审计事项:', evidenceFormData.value.relatedAuditItem)
+    }
+
+    // 4. 加载证据阶段已保存的数据
     const result = await window.electronAPI.getForm(props.projectId, 'evidence')
 
     if (result.success && result.data) {
@@ -641,6 +687,32 @@ const loadEvidenceFormData = async () => {
 watch(() => evidenceFormData.value, () => {
   autoSaveEvidenceFormData()
 }, { deep: true })
+
+// 监听项目存储中的项目名称变化，自动填充证据标题
+watch(() => projectStore.extractedProjectName, (projectName) => {
+  if (projectName && !evidenceFormData.value.evidenceTitle) {
+    // 自动填充证据标题
+    evidenceFormData.value.evidenceTitle = `${projectName}审计证据`
+    showAutoFillHint.value = true
+    console.log('从通知数据中自动填充证据标题:', evidenceFormData.value.evidenceTitle)
+  }
+})
+
+// 监听项目存储中的审计事项变化，自动选择第一个
+watch(() => projectStore.allAuditItems, (auditItems) => {
+  if (auditItems.length > 0 && !evidenceFormData.value.relatedAuditItem) {
+    evidenceFormData.value.relatedAuditItem = auditItems[0]
+    console.log('自动选择第一个审计事项:', evidenceFormData.value.relatedAuditItem)
+  }
+})
+
+// 监听用户编辑证据标题，隐藏自动填充提示
+watch(() => evidenceFormData.value.evidenceTitle, (newValue, oldValue) => {
+  if (showAutoFillHint.value && oldValue && newValue !== oldValue) {
+    showAutoFillHint.value = false
+    console.log('用户手动编辑了证据标题，隐藏自动填充提示')
+  }
+})
 
 // Load existing issues on mount
 onMounted(async () => {
@@ -663,6 +735,13 @@ onMounted(async () => {
     } catch (error) {
       console.error('Failed to load data:', error)
     }
+  }
+})
+
+// 监听projectId变化
+watch(() => props.projectId, (newProjectId) => {
+  if (newProjectId) {
+    loadEvidenceFormData()
   }
 })
 

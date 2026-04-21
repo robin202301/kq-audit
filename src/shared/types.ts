@@ -179,6 +179,7 @@ export interface EvidenceFormData {
 
   // 关联信息
   relatedFinding: string            // 相关发现问题
+  relatedAuditItem?: string         // 相关审计事项（从通知单中提取）
   relatedRequirement: string        // 相关法规要求
   importanceLevel: string           // 重要性等级
 
