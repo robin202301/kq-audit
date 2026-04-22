@@ -74,7 +74,7 @@ class WordService {
             const buf = doc.getZip().generate({ type: 'nodebuffer' });
             // Show save dialog
             const { canceled, filePath } = await electron_1.dialog.showSaveDialog({
-                title: 'Save Document',
+                title: '保存文档',
                 defaultPath: defaultFileName || `${data.project_name || 'document'}.docx`,
                 filters: [
                     { name: 'Word Documents', extensions: ['docx'] },
@@ -218,7 +218,7 @@ class WordService {
         };
         // Show save dialog for the first document to get output directory
         const { canceled, filePath } = await electron_1.dialog.showSaveDialog({
-            title: 'Save First Working Paper',
+            title: '保存第一个工作底稿',
             defaultPath: fileNameFn(items[0]) + '.docx',
             filters: [
                 { name: 'Word Documents', extensions: ['docx'] },

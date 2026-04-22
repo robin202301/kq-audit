@@ -5,8 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87d4d395-4815-43a6-a26c-b9186d906090" name="更改" comment="github action">
+      <change afterPath="$PROJECT_DIR$/SKILL.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/main/documentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/main/documentService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/main/wordService.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/main/wordService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/renderer/assets/main-5nJoVvSx.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/renderer/assets/main-DEgWizUs.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/renderer/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/dist/renderer/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/db.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/documentService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/preload.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/wordService.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/xlsx.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/App.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/assets/tailwind.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/components/FileUpload.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/stores/audit.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/stores/project.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/utils/debounce.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/views/AuditEvidence.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/views/AuditFinalReport.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/views/AuditNotice.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/views/AuditPlan.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/views/AuditSurvey.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/views/AuditWorkingPaper.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/electron.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/types.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vue-shim.d.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +110,7 @@
       <workItem from="1776339226256" duration="146000" />
       <workItem from="1776340506321" duration="3570000" />
       <workItem from="1776400079687" duration="14675000" />
-      <workItem from="1776507233332" duration="11712000" />
+      <workItem from="1776507233332" duration="17967000" />
     </task>
     <task id="LOCAL-00001" summary="github action">
       <option name="closed" value="true" />

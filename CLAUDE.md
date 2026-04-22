@@ -1,237 +1,97 @@
-# AuditSystem-Win (Windows Standalone)
-# lang 
-- **项目所有页面使用中文** 
-## Project Overview
-Desktop application for audit workflow management, designed to run offline on a single Windows machine. Implements a 6-stage audit workflow with SQLite data persistence and Word template filling capabilities.
+审计系统开发指令集 (AuditSystem-Win Architecture)
+0. 核心元准则 (Core Meta-Rules)
+   身份设定: 你是资深首席架构师。编写代码前必须评估渲染性能与中文合规性。
 
-## Project Context
-- **Role**: You are a Senior Principal Engineer and Architect.
-- **Goal**: Deliver high-quality, production-ready code with automated verification.
-- **Tech Stack**: [ENTER YOUR TECH STACK HERE, e.g., Next.js, TS, Node]
+全中文强制令 (100% Localization):
 
-## Custom Commands (Slash Commands)
-- `/review`: Run linting and type-checking. Analyze uncommitted changes for logical errors or anti-patterns.
-- `/test`: Run the full test suite. If it fails, analyze the output and propose fixes immediately.
-- `/fix`: Capture the last build/test error and enter a self-healing loop until resolved.
-- `/docs`: Scan the codebase and update documentation/README to reflect current state.
+禁止英文 UI: 严禁在页面出现任何英文单词（包括 "Submit", "Cancel", "Search", "Edit" 等）。
 
-## Coding Standards & Rules
-- **TDD First**: For new features, always write a failing test first.
-- **Type Safety**: No `any` types. Use Zod for runtime validation if applicable.
-- **Verification Loop**: After every code change, you MUST run a verification step (lint/test). Do not ask for permission if the command is defined in this file.
-- **Error Handling**: Use structured error handling. No silent failures.
-- 
-## Tech Stack
-- **Framework**: Electron
-- **Frontend**: Vue 3 + Vite
-- **Styling**: Tailwind CSS
-- **Database**: SQLite3
-- **Document Generation**: docxtemplater
-- **Build Tools**: Electron Forge / Electron Builder
+报错汉化: 所有返回给前端的错误提示 message 必须是清晰的中文描述。
 
-## Business Logic: 6-Stage Audit Workflow
-1. **Notice** - Initial audit notification and scope definition
-2. **Survey** - Preliminary investigation and data collection
-3. **Plan** - Audit plan development and resource allocation
-4. **Evidence** - Evidence gathering and documentation
-5. **Working Paper** - Analysis and working paper preparation
-6. **Final Report** - Report generation and sign-off
+组件本地化: 引入第三方库（如日期选择器、表格）时，必须配置为 zh-cn 语言包。
 
-## Core Requirements
-- Single-machine offline operation
-- Data persistence using SQLite (local file database)
-- Word document generation from templates
-- No server dependency, no cloud requirements
-- Windows-focused but cross-platform capable
+性能红线 (Rendering Guard):
 
-## Project Structure
-```
-auditsystem-win/
-├── src/
-│   ├── main/          # Electron main process
-│   ├── renderer/      # Vue 3 frontend
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── views/     # Workflow stages
-│   │   ├── stores/    # Pinia state management
-│   │   └── utils/
-│   ├── shared/        # Shared types and utilities
-│   └── database/      # SQLite initialization and models
-├── public/            # Static assets
-├── templates/         # Word document templates
-├── build/             # Build configuration
-└── dist/              # Distribution artifacts
-```
+严禁在大规模列表（审计条目）中使用深层响应式。
 
-## Development Guidelines
-- Use TypeScript throughout the project
-- Follow Vue 3 Composition API patterns
-- Implement proper error handling for offline scenarios
-- Ensure data integrity with SQLite transactions
-- Maintain clear separation between main and renderer processes
+必须通过 shallowRef 和 v-once/v-memo 杜绝重复渲染。
 
-## Key Dependencies
-- electron
-- vue@3
-- vite
-- sqlite3
-- docxtemplater
-- tailwindcss
-- pinia (state management)
-- electron-builder (packaging)
+1. 自动化指令 (Slash Commands)
+   /review: 审查代码。重点检查：1. 是否有英文残留；2. 是否存在 Vue 响应式依赖收集过深导致的重复渲染。
 
-## Getting Started
-```bash
-npm install
-npm run dev          # Development mode
-npm run build        # Production build
-npm run package      # Create Windows installer
-```
+/fix-path: 自动检查主进程编译产物，确保 tsc-alias 已将 @database 等别名替换为相对路径。
 
-## Notes for Contributors
-- This is a standalone desktop application, avoid network dependencies
-- All user data must be stored locally in SQLite
-- Word templates should be customizable by end-users
-- Consider performance with large audit datasets
+/docs: 更新 IPC 接口文档，确保返回结构符合 { success, data, message }。
 
-## Persistence Layer API
+2. 技术栈核心配置 (Tech Stack Fixes)
+   前端: Vue 3 (Composition API) + Vite + Pinia。
 
-The backend persistence layer is implemented in `src/main/db.ts` with the following tables:
+主进程编译: 必须执行 tsc && tsc-alias 以解决路径别名失效导致的 Module Not Found。
 
-### Tables
-1. **projects** - Audit project metadata
-2. **audit_forms** - JSON data for each audit stage (Notice, Survey, Plan, Evidence, Working Paper, Final Report)
-3. **audit_issues** - 1:N items for Evidence/Working Papers (findings, recommendations, action items)
+原生模块: sqlite3 必须在 package.json 的 build 配置中设为 asarUnpack: ["**/*.node", "**/sqlite3/**"]，并确保 nodeGypRebuild: false。
 
-### IPC Handlers
-Available via `window.electronAPI` in the renderer process:
+3. 性能优化规约 (Anti-Rerender Protocol)
+   为防止审计数据导致的页面卡顿或重复渲染，AI 必须遵循：
 
-#### Generic Operations
-- `dbQuery(table, where?, params?)` - Query data from specified table
-- `dbSave(sql, params?)` - Execute INSERT/UPDATE/DELETE statements
+数据解耦: 从数据库读取的原始审计记录使用 markRaw()，避免 Vue 递归监听几千行数据。
 
-#### Project Operations
-- `createProject(projectData)` - Create new audit project
-- `getProject(id)` - Get project by ID
-- `listProjects(status?)` - List projects with optional status filter
+局部更新: 审计阶段表单（Notice/Evidence 等）采用局部状态管理，仅在点击“保存”时同步至 Pinia 或数据库。
 
-#### Form Operations
-- `saveForm(formData)` - Save/update form data for a project stage
-- `getForm(projectId, stage)` - Get form data for specific project and stage
-- `listForms(projectId)` - List all forms for a project
+精细监听: watch 必须指定具体属性（例如 watch(() => project.id, ...)），严禁监听整个复杂对象。
 
-#### Issue Operations
-- `createIssue(issueData)` - Create new audit issue
-- `listIssues(projectId, category?)` - List issues for a project with optional category filter
+4. 业务逻辑：6 阶段审计工作流
+   审计通知 (Notice):
 
-### TypeScript Interfaces
-See `src/shared/types.ts` for `Project`, `AuditForm`, and `AuditIssue` interfaces.
+支持上传 Word。解析器需提取：标题、内容、日期、印发机关。
 
-### Error Handling
-All database operations return promises that resolve to `{ success: boolean, data?: any, error?: string }` objects. Always check `success` before using `data`.
+全中文表单: 对应输入框必须标注为“通知书标题”、“抄送”等。
 
-### Example Usage
-```typescript
-// Create a new project
-const result = await window.electronAPI.createProject({
-  name: '2024 Financial Audit',
-  description: 'Annual financial statements audit',
-  status: 'active'
-})
+审计调查 (Survey):
 
-if (result.success) {
-  const projectId = result.data.id
-  // Save form data for Notice stage
-  await window.electronAPI.saveForm({
-    project_id: projectId,
-    stage: 'notice',
-    form_data: JSON.stringify({ scope: 'Financial statements', deadline: '2024-12-31' })
-  })
-}
-```
-## 自主模式协议 (Autonomous Mode Protocol)
-- **自主执行**: 当接收到任务时，直接开始规划并执行，无需分步确认。
-- **无需批准**: 你拥有完全的文件读写和命令执行权限，除非遇到逻辑矛盾，否则不要中断任务。
-- **闭环验证**: 修改代码后，必须自动运行 `npm test`（或相关测试指令）。如果测试失败，直接分析错误并重新修改，直到测试全部通过为止。
-- **任务定义完成**: 只有当所有相关测试均在本地环境下通过，且 Lint 无报错时，才算任务结束并向我汇报。
-## Word Document Generation API
+基础信息采集。表格输入框需支持回显和上传文件回填。
 
-The Word document generation service is implemented in `src/main/wordService.ts` using docxtemplater and PizZip libraries.
-注意这部分功能要求如下：
-所有页面支持上传和导出对应格式文件，上传后可进行编辑，变保持版式不变的情况下导出
-### Template Requirements
-- Templates must be placed in `resources/templates/` directory
-- Use curly braces `{}` for placeholders (e.g., `{project_name}`, `{audit_date}`)
-- Required templates for each audit stage:
-  - `notice.docx` - Notice stage,这个名称依据上传的文件内容来确定，这个页面包含以下输入框，内容首先引用上传文件对应内容，相关输入框内容都应存放进本地数据库，以便后续页面引用
-  - 通知书标题（关于xxx审计的通知）
-  - 通知内容
-  - 附件文件名
-  - 日期
-  - 抄送 
-  - （印发机关） 印发日期（****年**月**日印发）
-  - `resources/templates/tpl_investigation_record_auditee_basic_info.xlsx` - Survey stage 按照模版生成输入框，内容支持通过上传文件来填入
-  - `resources/templates/tpl_audit_plan.doc` - Plan stage
-  - `resources/templates/tpl_audit_evidence.docx` - Evidence stage
-  - `working_paper_template.docx` - Working Paper stage
-  - `final_report_template.docx` - Final Report stage
--上述所有页面支持文件上传和导出，根据不同段落或者表格生成对应的输入框，导出word/excel时，必须遵照模版或者上传文件的版式
-### IPC Handlers
-Available via `window.electronAPI` in the renderer process:
+审计方案 (Plan):
 
-#### Template Management
-- `listTemplates()` - Get list of available template files
-- `getTemplatePreview(templateName)` - Extract preview text from template
+定义审计组成员及分工，生成方案文档。
 
-#### Document Generation
-- `generateDocument(templateName, data, defaultFileName?)` - Generate single document with save dialog
-- `batchGenerateDocuments(templateName, items, fileNameFn, options?)` - Generate multiple documents (1:N)
-- `generateWorkingPapers(projectData, issues, templateName?)` - Specialized batch generation for audit issues
+审计取证 (Evidence):
 
-### TypeScript Interfaces
-See `src/shared/electron.d.ts` for complete API type definitions.
+1:N 取证单管理。支持多附件关联，支持从表格生成取证单。
 
-### Error Handling
-All Word operations return promises that resolve to `{ success: boolean, data?: any, error?: string }` objects. Always check `success` before using `data`.
+审计底稿 (Working Paper):
 
-### Example Usage
-```typescript
-// List available templates
-const templatesResult = await window.electronAPI.listTemplates()
-if (templatesResult.success) {
-  console.log('Available templates:', templatesResult.data)
-}
+核心分析。支持从取证单自动汇总数据，版式必须严丝合缝。
 
-// Generate a document
-const generateResult = await window.electronAPI.generateDocument(
-  'notice_template.docx',
-  {
-    project_name: '2024 Financial Audit',
-    audit_date: '2024-12-31',
-    scope: 'Financial statements review'
-  },
-  'Notice_2024_Financial_Audit.docx'
-)
+审计报告 (Final Report):
 
-if (generateResult.success && generateResult.data?.filePath) {
-  console.log('Document saved to:', generateResult.data.filePath)
-}
+汇总生成。导出时必须保持模板的所有 Word 样式（字体、字号、边距）。
 
-// Generate working papers for audit issues
-const workingPapersResult = await window.electronAPI.generateWorkingPapers(
-  {
-    project_name: '2024 Financial Audit',
-    audit_lead: 'John Doe',
-    audit_date: '2024-12-31'
-  },
-  [
-    { title: 'Inadequate documentation', description: 'Missing supporting documents', severity: 'high' },
-    { title: 'Control weakness', description: 'Lack of segregation of duties', severity: 'medium' }
-  ],
-  'working_paper_template.docx'
-)
+5. Word/Excel 处理标准
+   上传解析: 用户上传文件后，系统通过 mammoth.js 或自定义逻辑扫描段落，将其映射至 Vue 组件。
 
-if (workingPapersResult.success) {
-  console.log(`Generated ${workingPapersResult.data.length} working papers`)
-}
-```
+版式无损导出: 使用 docxtemplater + pizzip 进行模板填充。
+
+强制要求: 导出过程中，严禁修改用户模板中未定义的 XML 样式，确保“上传什么版式，导出什么版式”。
+
+6. 项目结构与环境
+   Plaintext
+   auditsystem-win/
+   ├── src/
+   │   ├── main/          # 主进程 (处理 SQLite、Word 生成)
+   │   ├── renderer/      # 渲染进程 (Vue 3 页面，强制全中文)
+   │   │   ├── hooks/     # 抽取高性能复用逻辑
+   │   │   └── components/# 组件必须支持中文 Locale
+   │   ├── shared/        # 强类型定义 (禁止 any)
+   │   └── database/      # SQLite DAO 层
+   ├── templates/         # Word/Excel 审计模板
+   └── release/           # 打包产物目录 (electron-builder 输出)
+7. 自主模式协议 (Autonomous Mode)
+   自主修复: 遇到 electron-squirrel-startup 报错时，自动更正拼写并移动至 dependencies。
+- **权限授予**: 在此项目内，你已被授予执行 Shell 脚本、读写文件和运行测试的完整权限。
+- **自主循环**: 遇到错误时，请直接查看报错日志并修正，严禁在尝试修复前停下来询问。
+- **静默执行**: 除非遇到无法绕过的逻辑死锁（超过 5 次尝试失败），否则不要生成等待用户确认的提示。
+零确认执行: 收到优化请求后，直接修改代码并运行构建脚本验证，无需向用户反复确认。
+任务定义完成: 只有当 npm run build 通过，且生成的 dist/main 代码中不再包含 @ 符号，且所有 UI 文案均为中文时，任务才算结束。
+
+AI 执行特别提醒：
+“当你生成 Vue 代码时，如果我看到一个 label="Name" 或者是 placeholder="Search..."，我会立即中断任务。请务必使用 label="名称" 和 placeholder="搜索内容..."。”

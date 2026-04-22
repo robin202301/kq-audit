@@ -188,7 +188,7 @@ class DocumentService extends wordService_1.WordService {
             });
             // Show save dialog
             const { canceled, filePath } = await electron_1.dialog.showSaveDialog({
-                title: 'Save Excel Document',
+                title: '保存Excel文档',
                 defaultPath: defaultFileName || `${data.project_name || 'document'}.xlsx`,
                 filters: [
                     { name: 'Excel Files', extensions: ['xlsx', 'xls'] },
